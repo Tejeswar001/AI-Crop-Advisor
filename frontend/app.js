@@ -683,6 +683,7 @@ function createWeatherChart(city) {
   const daily = city.daily || {};
   const maxTemp = daily.temperature_2m_max || [];
   const minTemp = daily.temperature_2m_min || [];
+  const labels = daily.time || [];
   weatherChart = new Chart(ctx, {
     type: 'line',
     data: {

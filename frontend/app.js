@@ -1,44 +1,3 @@
-// Disease descriptions for user-friendly display
-const diseaseDescriptions = {
-  "Apple - Apple Scab": "Apple scab is a fungal disease that causes dark, scabby lesions on leaves and fruit. It can reduce fruit quality and yield. Control involves removing infected leaves and using fungicides.",
-  "Apple - Black Rot": "Black rot affects apples, causing dark, sunken spots on fruit and cankers on branches. Prune infected limbs and apply fungicides to manage the disease.",
-  "Apple - Cedar Apple Rust": "Cedar apple rust is a fungal disease that causes yellow-orange spots on apple leaves and fruit. It requires both apple and cedar trees to complete its life cycle. Remove nearby cedars and use resistant varieties.",
-  "Apple - Healthy": "No disease detected. Your apple plant appears healthy!",
-  "Blueberry - Healthy": "No disease detected. Your blueberry plant appears healthy!",
-  "Cherry (Sour) - Powdery Mildew": "Powdery mildew causes a white, powdery coating on cherry leaves and fruit. Improve air circulation and use fungicides to control.",
-  "Cherry (Sour) - Healthy": "No disease detected. Your cherry plant appears healthy!",
-  "Corn (Maize) - Cercospora Leaf Spot / Gray Leaf Spot": "Gray leaf spot is a fungal disease causing rectangular lesions on corn leaves, reducing photosynthesis. Rotate crops and use resistant hybrids.",
-  "Corn (Maize) - Common Rust": "Common rust produces reddish-brown pustules on corn leaves. Use resistant varieties and fungicides for control.",
-  "Corn (Maize) - Northern Leaf Blight": "Northern leaf blight causes long, gray-green lesions on corn leaves. Crop rotation and resistant varieties help manage it.",
-  "Corn (Maize) - Healthy": "No disease detected. Your corn plant appears healthy!",
-  "Grape - Black Rot": "Black rot is a fungal disease causing black spots on grape leaves and fruit. Remove infected material and apply fungicides.",
-  "Grape - Esca (Black Measles)": "Esca, or black measles, causes leaf discoloration and fruit shriveling in grapes. Prune infected vines and avoid water stress.",
-  "Grape - Leaf Blight (Isariopsis Leaf Spot)": "Leaf blight causes brown spots on grape leaves. Remove infected leaves and use fungicides.",
-  "Grape - Healthy": "No disease detected. Your grape plant appears healthy!",
-  "Orange - Citrus Greening (HLB)": "Citrus greening is a bacterial disease spread by psyllids, causing yellow shoots and misshapen fruit. Remove infected trees and control psyllids.",
-  "Peach - Bacterial Spot": "Bacterial spot causes dark, sunken lesions on peach fruit and leaves. Use resistant varieties and copper sprays.",
-  "Peach - Healthy": "No disease detected. Your peach plant appears healthy!",
-  "Pepper (Bell) - Bacterial Spot": "Bacterial spot causes water-soaked spots on pepper leaves and fruit. Use disease-free seed and copper sprays.",
-  "Pepper (Bell) - Healthy": "No disease detected. Your pepper plant appears healthy!",
-  "Potato - Early Blight": "Early blight causes concentric rings on potato leaves and stems. Rotate crops and use fungicides.",
-  "Potato - Late Blight": "Late blight causes dark lesions on potato leaves and tubers. Remove infected plants and apply fungicides.",
-  "Potato - Healthy": "No disease detected. Your potato plant appears healthy!",
-  "Raspberry - Healthy": "No disease detected. Your raspberry plant appears healthy!",
-  "Soybean - Healthy": "No disease detected. Your soybean plant appears healthy!",
-  "Squash - Powdery Mildew": "Powdery mildew causes white, powdery spots on squash leaves. Improve air flow and use fungicides.",
-  "Strawberry - Leaf Scorch": "Leaf scorch causes brown edges on strawberry leaves. Remove infected leaves and avoid overhead watering.",
-  "Strawberry - Healthy": "No disease detected. Your strawberry plant appears healthy!",
-  "Tomato - Bacterial Spot": "Bacterial spot causes small, dark spots on tomato leaves and fruit. Use disease-free seed and copper sprays.",
-  "Tomato - Early Blight": "Early blight causes brown spots with concentric rings on tomato leaves. Remove infected leaves and use fungicides.",
-  "Tomato - Late Blight": "Late blight causes water-soaked lesions on tomato leaves and fruit. Remove infected plants and apply fungicides.",
-  "Tomato - Leaf Mold": "Leaf mold causes yellow spots and fuzzy growth on tomato leaves. Improve air circulation and use fungicides.",
-  "Tomato - Septoria Leaf Spot": "Septoria leaf spot causes small, circular spots on tomato leaves. Remove infected leaves and use fungicides.",
-  "Tomato - Spider Mites / Two-Spotted Spider Mite": "Spider mites cause stippling and webbing on tomato leaves. Use miticides and increase humidity.",
-  "Tomato - Target Spot": "Target spot causes brown spots with concentric rings on tomato leaves. Remove infected leaves and use fungicides.",
-  "Tomato - Yellow Leaf Curl Virus": "Yellow leaf curl virus causes yellowing and curling of tomato leaves. Control whiteflies and use resistant varieties.",
-  "Tomato - Mosaic Virus": "Mosaic virus causes mottled, distorted tomato leaves. Remove infected plants and control aphids.",
-  "Tomato - Healthy": "No disease detected. Your tomato plant appears healthy!"
-};
 // Application Data
 const appData = {
   crops_dataset: [
@@ -414,7 +373,7 @@ function handleCropRecommendation(e) {
     N: parseFloat(nitrogenEl.value),
     P: parseFloat(phosphorusEl.value),
     K: parseFloat(potassiumEl.value),
-    ph: parseFloat(phEl.value), // FIXED: must be 'ph' for backend
+    pH: parseFloat(phEl.value),
     temperature: parseFloat(temperatureEl.value),
     humidity: parseFloat(humidityEl.value),
     rainfall: parseFloat(rainfallEl.value),
@@ -423,16 +382,9 @@ function handleCropRecommendation(e) {
 
   console.log('Form data:', formData);
 
-  // Validate form data robustly
-  const requiredFields = ['N', 'P', 'K', 'ph', 'temperature', 'humidity', 'rainfall'];
-  for (const key of requiredFields) {
-    if (formData[key] === '' || isNaN(formData[key])) {
-      alert('Please fill in all fields with valid numbers.');
-      return;
-    }
-  }
-  if (!formData.state) {
-    alert('Please select a state.');
+  // Validate form data
+  if (!formData.N || !formData.P || !formData.K || !formData.pH || !formData.temperature || !formData.humidity || !formData.rainfall || !formData.state) {
+    alert('Please fill in all fields');
     return;
   }
 
@@ -527,15 +479,17 @@ function getCropRecommendations(userInput) {
   return recommendations;
 }
 
-
-function displayBackendRecommendation(recommendation) {
-  console.log('Displaying backend recommendation:', recommendation);
+function displayRecommendations(recommendations) {
+  console.log('Displaying recommendations...');
+  
   const resultsContainer = document.getElementById('recommendationsResults');
   const gridContainer = document.getElementById('recommendationsGrid');
+
   if (!resultsContainer || !gridContainer) {
     console.error('Results containers not found');
     return;
   }
+
   gridContainer.innerHTML = '';
 
   recommendations.forEach((rec, index) => {
@@ -560,6 +514,7 @@ function displayBackendRecommendation(recommendation) {
 
   resultsContainer.classList.remove('hidden');
   resultsContainer.scrollIntoView({ behavior: 'smooth' });
+  console.log('Recommendations displayed successfully');
 }
 
 // Weather Dashboard
@@ -683,11 +638,10 @@ function createWeatherChart(city) {
   const daily = city.daily || {};
   const maxTemp = daily.temperature_2m_max || [];
   const minTemp = daily.temperature_2m_min || [];
-  const labels = daily.time || [];
   weatherChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
+      labels: ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
       datasets: [
         {
           label: 'Max Temperature (°C)',
@@ -1303,54 +1257,3 @@ window.showCropDetails = showCropDetails;
 window.showPriceAnalysis = showPriceAnalysis;
 window.showModal = showModal;
 window.hideModal = hideModal;
-
-// Disease Prediction
-document.addEventListener('DOMContentLoaded', function() {
-  const diseaseForm = document.getElementById('diseaseForm');
-  if (diseaseForm) {
-    diseaseForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('leafImage');
-      const resultDiv = document.getElementById('diseaseResult');
-      if (!fileInput.files.length) {
-        resultDiv.textContent = 'Please select an image.';
-        return;
-      }
-      const formData = new FormData();
-      formData.append('leafImage', fileInput.files[0]);
-      resultDiv.textContent = 'Detecting...';
-      fetch('/api/disease', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        // Show image preview
-        const file = fileInput.files[0];
-        let imgHtml = '';
-        if (file) {
-          const imgUrl = URL.createObjectURL(file);
-          imgHtml = `<div style="text-align:center;margin-bottom:1em;"><img src="${imgUrl}" alt="Leaf" style="max-width:220px;border-radius:16px;border:2px solid #1FB8CD;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:0.5em;"></div>`;
-        }
-        const diseaseName = data.disease || 'Unknown';
-        const description = diseaseDescriptions[diseaseName] || 'No description available.';
-        resultDiv.innerHTML = imgHtml +
-          `<div class="disease-prediction-title">
-            <i class="fas fa-dna" style="color:var(--color-primary);margin-right:0.5em;"></i>
-            <span>Prediction: ${diseaseName}</span>
-          </div>` +
-          `<div class="disease-description-card">
-            ${description}
-          </div>`;
-      })
-      .catch(() => {
-        resultDiv.textContent = 'Prediction failed.';
-      });
-    });
-    // Style file input
-    const fileInput = document.getElementById('leafImage');
-    if (fileInput) {
-      fileInput.classList.add('styled-file-input');
-    }
-  }
-});

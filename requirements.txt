@@ -1,9 +1,9 @@
+
 requests
 flask
 joblib
+pandas
 numpy
-requests
-Pillow
 torch
 torchvision
-scikit-learn
+Pillow

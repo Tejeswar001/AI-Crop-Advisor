@@ -1,3 +1,44 @@
+// Disease descriptions for user-friendly display
+const diseaseDescriptions = {
+  "Apple - Apple Scab": "Apple scab is a fungal disease that causes dark, scabby lesions on leaves and fruit. It can reduce fruit quality and yield. Control involves removing infected leaves and using fungicides.",
+  "Apple - Black Rot": "Black rot affects apples, causing dark, sunken spots on fruit and cankers on branches. Prune infected limbs and apply fungicides to manage the disease.",
+  "Apple - Cedar Apple Rust": "Cedar apple rust is a fungal disease that causes yellow-orange spots on apple leaves and fruit. It requires both apple and cedar trees to complete its life cycle. Remove nearby cedars and use resistant varieties.",
+  "Apple - Healthy": "No disease detected. Your apple plant appears healthy!",
+  "Blueberry - Healthy": "No disease detected. Your blueberry plant appears healthy!",
+  "Cherry (Sour) - Powdery Mildew": "Powdery mildew causes a white, powdery coating on cherry leaves and fruit. Improve air circulation and use fungicides to control.",
+  "Cherry (Sour) - Healthy": "No disease detected. Your cherry plant appears healthy!",
+  "Corn (Maize) - Cercospora Leaf Spot / Gray Leaf Spot": "Gray leaf spot is a fungal disease causing rectangular lesions on corn leaves, reducing photosynthesis. Rotate crops and use resistant hybrids.",
+  "Corn (Maize) - Common Rust": "Common rust produces reddish-brown pustules on corn leaves. Use resistant varieties and fungicides for control.",
+  "Corn (Maize) - Northern Leaf Blight": "Northern leaf blight causes long, gray-green lesions on corn leaves. Crop rotation and resistant varieties help manage it.",
+  "Corn (Maize) - Healthy": "No disease detected. Your corn plant appears healthy!",
+  "Grape - Black Rot": "Black rot is a fungal disease causing black spots on grape leaves and fruit. Remove infected material and apply fungicides.",
+  "Grape - Esca (Black Measles)": "Esca, or black measles, causes leaf discoloration and fruit shriveling in grapes. Prune infected vines and avoid water stress.",
+  "Grape - Leaf Blight (Isariopsis Leaf Spot)": "Leaf blight causes brown spots on grape leaves. Remove infected leaves and use fungicides.",
+  "Grape - Healthy": "No disease detected. Your grape plant appears healthy!",
+  "Orange - Citrus Greening (HLB)": "Citrus greening is a bacterial disease spread by psyllids, causing yellow shoots and misshapen fruit. Remove infected trees and control psyllids.",
+  "Peach - Bacterial Spot": "Bacterial spot causes dark, sunken lesions on peach fruit and leaves. Use resistant varieties and copper sprays.",
+  "Peach - Healthy": "No disease detected. Your peach plant appears healthy!",
+  "Pepper (Bell) - Bacterial Spot": "Bacterial spot causes water-soaked spots on pepper leaves and fruit. Use disease-free seed and copper sprays.",
+  "Pepper (Bell) - Healthy": "No disease detected. Your pepper plant appears healthy!",
+  "Potato - Early Blight": "Early blight causes concentric rings on potato leaves and stems. Rotate crops and use fungicides.",
+  "Potato - Late Blight": "Late blight causes dark lesions on potato leaves and tubers. Remove infected plants and apply fungicides.",
+  "Potato - Healthy": "No disease detected. Your potato plant appears healthy!",
+  "Raspberry - Healthy": "No disease detected. Your raspberry plant appears healthy!",
+  "Soybean - Healthy": "No disease detected. Your soybean plant appears healthy!",
+  "Squash - Powdery Mildew": "Powdery mildew causes white, powdery spots on squash leaves. Improve air flow and use fungicides.",
+  "Strawberry - Leaf Scorch": "Leaf scorch causes brown edges on strawberry leaves. Remove infected leaves and avoid overhead watering.",
+  "Strawberry - Healthy": "No disease detected. Your strawberry plant appears healthy!",
+  "Tomato - Bacterial Spot": "Bacterial spot causes small, dark spots on tomato leaves and fruit. Use disease-free seed and copper sprays.",
+  "Tomato - Early Blight": "Early blight causes brown spots with concentric rings on tomato leaves. Remove infected leaves and use fungicides.",
+  "Tomato - Late Blight": "Late blight causes water-soaked lesions on tomato leaves and fruit. Remove infected plants and apply fungicides.",
+  "Tomato - Leaf Mold": "Leaf mold causes yellow spots and fuzzy growth on tomato leaves. Improve air circulation and use fungicides.",
+  "Tomato - Septoria Leaf Spot": "Septoria leaf spot causes small, circular spots on tomato leaves. Remove infected leaves and use fungicides.",
+  "Tomato - Spider Mites / Two-Spotted Spider Mite": "Spider mites cause stippling and webbing on tomato leaves. Use miticides and increase humidity.",
+  "Tomato - Target Spot": "Target spot causes brown spots with concentric rings on tomato leaves. Remove infected leaves and use fungicides.",
+  "Tomato - Yellow Leaf Curl Virus": "Yellow leaf curl virus causes yellowing and curling of tomato leaves. Control whiteflies and use resistant varieties.",
+  "Tomato - Mosaic Virus": "Mosaic virus causes mottled, distorted tomato leaves. Remove infected plants and control aphids.",
+  "Tomato - Healthy": "No disease detected. Your tomato plant appears healthy!"
+};
 // Application Data
 const appData = {
   crops_dataset: [
@@ -253,7 +294,7 @@ function handleCropRecommendation(e) {
     N: parseFloat(nitrogenEl.value),
     P: parseFloat(phosphorusEl.value),
     K: parseFloat(potassiumEl.value),
-    pH: parseFloat(phEl.value),
+    ph: parseFloat(phEl.value), // FIXED: must be 'ph' for backend
     temperature: parseFloat(temperatureEl.value),
     humidity: parseFloat(humidityEl.value),
     rainfall: parseFloat(rainfallEl.value),
@@ -262,33 +303,51 @@ function handleCropRecommendation(e) {
 
   console.log('Form data:', formData);
 
-  // Validate form data
-  if (!formData.N || !formData.P || !formData.K || !formData.pH || !formData.temperature || !formData.humidity || !formData.rainfall || !formData.state) {
-    alert('Please fill in all fields');
+  // Validate form data robustly
+  const requiredFields = ['N', 'P', 'K', 'ph', 'temperature', 'humidity', 'rainfall'];
+  for (const key of requiredFields) {
+    if (formData[key] === '' || isNaN(formData[key])) {
+      alert('Please fill in all fields with valid numbers.');
+      return;
+    }
+  }
+  if (!formData.state) {
+    alert('Please select a state.');
     return;
   }
 
   // Show loading state
   const submitBtn = e.target.querySelector('button[type="submit"]');
-  const spinner = document.getElementById('loadingSpinner');
-  
   if (submitBtn) {
     submitBtn.disabled = true;
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    
     console.log('Processing started...');
-    
-    // Simulate processing time
-    setTimeout(() => {
-      const recommendations = getCropRecommendations(formData);
-      displayRecommendations(recommendations);
-      
-      // Hide loading state
+    // Send POST request to backend
+    fetch('/api/recommend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(res => res.json())
+    .then(data => {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
+      if (data.recommendation) {
+        displayBackendRecommendation(data.recommendation);
+      } else {
+        alert('No recommendation received.');
+      }
       console.log('Processing completed');
-    }, 2000);
+    })
+    .catch(err => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      alert('Error getting recommendation from backend.');
+      console.error(err);
+    });
   }
 }
 
@@ -337,61 +396,33 @@ function getCropRecommendations(userInput) {
   return recommendations;
 }
 
-function displayRecommendations(recommendations) {
-  console.log('Displaying recommendations...');
-  
+
+function displayBackendRecommendation(recommendation) {
+  console.log('Displaying backend recommendation:', recommendation);
   const resultsContainer = document.getElementById('recommendationsResults');
   const gridContainer = document.getElementById('recommendationsGrid');
-
   if (!resultsContainer || !gridContainer) {
     console.error('Results containers not found');
     return;
   }
-
   gridContainer.innerHTML = '';
-
-  recommendations.forEach((rec, index) => {
-    const card = document.createElement('div');
-    card.className = 'recommendation-card';
-    card.innerHTML = `
-      <div class="recommendation-header">
-        <div class="crop-name">${rec.name || rec.crop}</div>
-        <div class="confidence-score">${rec.confidence}% Match</div>
+  const card = document.createElement('div');
+  card.className = 'recommendation-card';
+  card.innerHTML = `
+    <div class="recommendation-header">
+      <div class="crop-name">${recommendation}</div>
+      <div class="confidence-score">Recommended Crop</div>
+    </div>
+    <div class="crop-details">
+      <div class="crop-detail">
+        <div class="detail-label">See details below</div>
       </div>
-      <div class="crop-details">
-        <div class="crop-detail">
-          <div class="detail-value">${rec.season || 'N/A'}</div>
-          <div class="detail-label">Season</div>
-        </div>
-        <div class="crop-detail">
-          <div class="detail-value">${rec.duration || 'N/A'}</div>
-          <div class="detail-label">Duration</div>
-        </div>
-        <div class="crop-detail">
-          <div class="detail-value">${rec.yield || 'N/A'}</div>
-          <div class="detail-label">Expected Yield</div>
-        </div>
-        <div class="crop-detail">
-          <div class="detail-value">₹${rec.marketPrice ? rec.marketPrice.price.toLocaleString() : 'N/A'}</div>
-          <div class="detail-label">Market Price</div>
-        </div>
-      </div>
-      <p class="crop-description">${rec.description || 'No description available.'}</p>
-      <div class="crop-actions">
-        <button class="btn btn--primary btn--sm" onclick="showCropDetails('${rec.crop}')">
-          <i class="fas fa-info-circle"></i> Learn More
-        </button>
-        <button class="btn btn--outline btn--sm" onclick="navigateToSection('market')">
-          <i class="fas fa-chart-line"></i> View Prices
-        </button>
-      </div>
-    `;
-    gridContainer.appendChild(card);
-  });
-
+    </div>
+    <p class="crop-description">This crop is recommended based on your soil and weather inputs.</p>
+  `;
+  gridContainer.appendChild(card);
   resultsContainer.classList.remove('hidden');
   resultsContainer.scrollIntoView({ behavior: 'smooth' });
-  console.log('Recommendations displayed successfully');
 }
 
 // Weather Dashboard
@@ -412,16 +443,40 @@ function setupWeatherDashboard() {
 function handleCitySelection(e) {
   const selectedCity = e.target.value;
   console.log('City selected:', selectedCity);
-  
   if (selectedCity) {
-    const weatherData = appData.weather_data.find(data => data.city === selectedCity);
-    if (weatherData) {
-      displayWeatherData(weatherData);
-      setTimeout(() => createWeatherChart(selectedCity), 100);
-      generateWeatherAdvisories(weatherData);
-    } else {
-      console.error('Weather data not found for city:', selectedCity);
-    }
+    fetch(`/api/weather?city=${encodeURIComponent(selectedCity)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.weather) {
+          // Use backend-provided values and arrays
+          // Use first value of arrays for today's display, arrays for chart
+          const tempMaxArr = Array.isArray(data.weather.future_temperature_max) ? data.weather.future_temperature_max : [data.weather.temperature_max];
+          const tempMinArr = Array.isArray(data.weather.future_temperature_min) ? data.weather.future_temperature_min : [data.weather.temperature_min];
+          const humidityMaxArr = Array.isArray(data.weather.future_humidity_max) ? data.weather.future_humidity_max : [data.weather.humidity_max];
+          const humidityMinArr = Array.isArray(data.weather.future_humidity_min) ? data.weather.future_humidity_min : [data.weather.humidity_min];
+          const weatherData = {
+            city: data.city,
+            temp_max: tempMaxArr[0],
+            temp_min: tempMinArr[0],
+            humidity_max: humidityMaxArr[0],
+            humidity_min: humidityMinArr[0],
+            rainfall: data.weather.precipitation,
+            condition: data.weather.weathercode,
+            future_temp_max: tempMaxArr,
+            future_temp_min: tempMinArr,
+            future_humidity_max: humidityMaxArr,
+            future_humidity_min: humidityMinArr
+          };
+          displayWeatherData(weatherData);
+          setTimeout(() => createWeatherChart(weatherData), 100);
+          generateWeatherAdvisories(weatherData);
+        } else {
+          console.error('Weather data not found for city:', selectedCity);
+        }
+      })
+      .catch(() => {
+        console.error('Weather API error');
+      });
   }
 }
 
@@ -438,6 +493,9 @@ function displayWeatherData(data) {
 
   const weatherIcon = getWeatherIcon(data.condition);
   
+  function safe(val, unit = '') {
+    return (val === null || val === undefined || isNaN(val)) ? 'N/A' : `${val}${unit}`;
+  }
   currentWeather.innerHTML = `
     <div class="weather-header">
       <div class="weather-city">${data.city}</div>
@@ -445,19 +503,19 @@ function displayWeatherData(data) {
     </div>
     <div class="weather-stats">
       <div class="weather-stat">
-        <div class="weather-value">${data.temp_max}°C</div>
+        <div class="weather-value">${safe(data.temp_max, '°C')}</div>
         <div class="weather-label">Max Temp</div>
       </div>
       <div class="weather-stat">
-        <div class="weather-value">${data.temp_min}°C</div>
+        <div class="weather-value">${safe(data.temp_min, '°C')}</div>
         <div class="weather-label">Min Temp</div>
       </div>
       <div class="weather-stat">
-        <div class="weather-value">${data.humidity}%</div>
-        <div class="weather-label">Humidity</div>
+        <div class="weather-value">${safe(data.humidity_max, '%')} / ${safe(data.humidity_min, '%')}</div>
+        <div class="weather-label">Humidity (Max/Min)</div>
       </div>
       <div class="weather-stat">
-        <div class="weather-value">${data.rainfall}mm</div>
+        <div class="weather-value">${safe(data.rainfall, 'mm')}</div>
         <div class="weather-label">Rainfall</div>
       </div>
     </div>
@@ -490,24 +548,26 @@ function createWeatherChart(city) {
     weatherChart.destroy();
   }
 
-  // Generate 7-day forecast data
-  const forecastData = generateForecastData(city);
-
+  // Use backend-provided forecast arrays ONLY
+  const labels = ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+  function safeArr(arr) {
+    return Array.isArray(arr) ? arr.map(v => (v === null || v === undefined || isNaN(v)) ? null : v) : [];
+  }
   weatherChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Today', 'Tomorrow', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+      labels: labels,
       datasets: [
         {
           label: 'Max Temperature (°C)',
-          data: forecastData.maxTemp,
+          data: safeArr(city.future_temp_max),
           borderColor: '#1FB8CD',
           backgroundColor: 'rgba(31, 184, 205, 0.1)',
           tension: 0.4
         },
         {
           label: 'Min Temperature (°C)',
-          data: forecastData.minTemp,
+          data: safeArr(city.future_temp_min),
           borderColor: '#FFC185',
           backgroundColor: 'rgba(255, 193, 133, 0.1)',
           tension: 0.4
@@ -529,7 +589,7 @@ function createWeatherChart(city) {
       plugins: {
         title: {
           display: true,
-          text: `7-Day Weather Forecast - ${city}`
+          text: `7-Day Weather Forecast - ${city.city}`
         }
       }
     }
@@ -538,21 +598,7 @@ function createWeatherChart(city) {
   console.log('Weather chart created successfully');
 }
 
-function generateForecastData(city) {
-  const baseData = appData.weather_data.find(data => data.city === city);
-  const maxTemp = [];
-  const minTemp = [];
-
-  for (let i = 0; i < 7; i++) {
-    const maxVariation = (Math.random() - 0.5) * 6;
-    const minVariation = (Math.random() - 0.5) * 4;
-    
-    maxTemp.push(Math.round((baseData.temp_max + maxVariation) * 10) / 10);
-    minTemp.push(Math.round((baseData.temp_min + minVariation) * 10) / 10);
-  }
-
-  return { maxTemp, minTemp };
-}
+// REMOVED: generateForecastData. All weather data now comes from backend API.
 
 function generateWeatherAdvisories(weatherData) {
   const advisoryList = document.getElementById('advisoryList');
@@ -1124,3 +1170,54 @@ window.showCropDetails = showCropDetails;
 window.showPriceAnalysis = showPriceAnalysis;
 window.showModal = showModal;
 window.hideModal = hideModal;
+
+// Disease Prediction
+document.addEventListener('DOMContentLoaded', function() {
+  const diseaseForm = document.getElementById('diseaseForm');
+  if (diseaseForm) {
+    diseaseForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('leafImage');
+      const resultDiv = document.getElementById('diseaseResult');
+      if (!fileInput.files.length) {
+        resultDiv.textContent = 'Please select an image.';
+        return;
+      }
+      const formData = new FormData();
+      formData.append('leafImage', fileInput.files[0]);
+      resultDiv.textContent = 'Detecting...';
+      fetch('/api/disease', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        // Show image preview
+        const file = fileInput.files[0];
+        let imgHtml = '';
+        if (file) {
+          const imgUrl = URL.createObjectURL(file);
+          imgHtml = `<div style="text-align:center;margin-bottom:1em;"><img src="${imgUrl}" alt="Leaf" style="max-width:220px;border-radius:16px;border:2px solid #1FB8CD;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:0.5em;"></div>`;
+        }
+        const diseaseName = data.disease || 'Unknown';
+        const description = diseaseDescriptions[diseaseName] || 'No description available.';
+        resultDiv.innerHTML = imgHtml +
+          `<div class="disease-prediction-title">
+            <i class="fas fa-dna" style="color:var(--color-primary);margin-right:0.5em;"></i>
+            <span>Prediction: ${diseaseName}</span>
+          </div>` +
+          `<div class="disease-description-card">
+            ${description}
+          </div>`;
+      })
+      .catch(() => {
+        resultDiv.textContent = 'Prediction failed.';
+      });
+    });
+    // Style file input
+    const fileInput = document.getElementById('leafImage');
+    if (fileInput) {
+      fileInput.classList.add('styled-file-input');
+    }
+  }
+});

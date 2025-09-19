@@ -17,13 +17,7 @@
                     <i class="fas fa-seedling"></i>
                     <span>AI Crop Advisor</span>
                 </div>
-                <nav class="nav">
-                    <a href="#home" class="nav-link active" data-section="home">Home</a>
-                    <a href="#crop-advisor" class="nav-link" data-section="crop-advisor">Crop Advisor</a>
-                    <a href="#weather" class="nav-link" data-section="weather">Weather</a>
-                    <a href="#market" class="nav-link" data-section="market">Market Prices</a>
-                    <a href="#learn" class="nav-link" data-section="learn">Learn</a>
-                </nav>
+                <!-- Top nav removed: only bottom nav remains -->
                 <div class="header-actions">
                     <button class="btn-icon" id="voiceBtn" title="Voice Assistant">
                         <i class="fas fa-microphone"></i>
@@ -123,19 +117,19 @@
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label class="form-label">Nitrogen (N)</label>
-                                        <input type="number" class="form-control" id="nitrogen" placeholder="40-80" required>
+                                        <input type="number" class="form-control" id="nitrogen" min="0" max="140" placeholder="0-140" required>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Phosphorus (P)</label>
-                                        <input type="number" class="form-control" id="phosphorus" placeholder="30-60" required>
+                                        <input type="number" class="form-control" id="phosphorus" min="5" max="145" placeholder="5-145" required>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Potassium (K)</label>
-                                        <input type="number" class="form-control" id="potassium" placeholder="20-50" required>
+                                        <input type="number" class="form-control" id="potassium" min="5" max="205" placeholder="5-205" required>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">pH Level</label>
-                                        <input type="number" step="0.1" class="form-control" id="ph" placeholder="5.5-8.5" required>
+                                        <input type="number" step="0.1" class="form-control" id="ph" min="3.5" max="9.9" placeholder="3.5-9.9" required>
                                     </div>
                                 </div>
                             </div>
@@ -151,15 +145,15 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Temperature (°C)</label>
-                                        <input type="number" class="form-control" id="temperature" placeholder="20-35" required>
+                                        <input type="number" class="form-control" id="temperature" min="8" max="43" placeholder="8-43" required>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Humidity (%)</label>
-                                        <input type="number" class="form-control" id="humidity" placeholder="50-90" required>
+                                        <input type="number" class="form-control" id="humidity" min="14" max="100" placeholder="14-100" required>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Annual Rainfall (mm)</label>
-                                        <input type="number" class="form-control" id="rainfall" placeholder="200-1000" required>
+                                        <input type="number" class="form-control" id="rainfall" min="20" max="300" placeholder="20-300" required>
                                     </div>
                                 </div>
                             </div>
@@ -198,6 +192,21 @@
                             <option value="Mumbai">Mumbai</option>
                             <option value="Bangalore">Bangalore</option>
                             <option value="Chennai">Chennai</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Kolkata">Kolkata</option>
+                            <option value="Ahmedabad">Ahmedabad</option>
+                            <option value="Pune">Pune</option>
+                            <option value="Jaipur">Jaipur</option>
+                            <option value="Lucknow">Lucknow</option>
+                            <option value="Patna">Patna</option>
+                            <option value="Indore">Indore</option>
+                            <option value="Surat">Surat</option>
+                            <option value="Kanpur">Kanpur</option>
+                            <option value="Nagpur">Nagpur</option>
+                            <option value="Visakhapatnam">Visakhapatnam</option>
+                            <option value="Bhopal">Bhopal</option>
+                            <option value="Ludhiana">Ludhiana</option>
+                            <option value="Agra">Agra</option>
                         </select>
                     </div>
 
@@ -335,6 +344,31 @@
                 </div>
             </div>
         </section>
+
+        <!-- Disease Detection Section -->
+        <section id="disease-detection" class="section">
+          <div class="container">
+            <div class="section-header">
+              <h2>Crop Disease Detection</h2>
+              <p>Upload a leaf image to detect crop diseases using AI</p>
+            </div>
+            <div class="disease-detection-container">
+                            <div class="disease-card">
+                                <form id="diseaseForm" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="leafImage">Leaf Image</label>
+                                        <input type="file" id="leafImage" name="leafImage" accept="image/*" required>
+                                    </div>
+                                    <button type="submit" class="btn btn--primary btn--full-width">
+                                        <i class="fas fa-virus"></i>
+                                        Detect Disease
+                                    </button>
+                                </form>
+                                <div class="disease-result" id="diseaseResult"></div>
+                            </div>
+            </div>
+          </div>
+        </section>
     </main>
 
     <!-- Voice Assistant Modal -->
@@ -403,6 +437,10 @@
         <a href="#learn" class="bottom-nav-item" data-section="learn">
             <i class="fas fa-book"></i>
             <span>Learn</span>
+        </a>
+        <a href="#disease-detection" class="bottom-nav-item" data-section="disease-detection">
+            <i class="fas fa-virus"></i>
+            <span>Disease</span>
         </a>
     </nav>
 

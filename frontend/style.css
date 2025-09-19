@@ -1,3 +1,53 @@
+/* Disease Prediction UI */
+.disease-prediction-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1em;
+}
+.disease-description-card {
+  background: var(--color-bg-3);
+  color: var(--color-text);
+  padding: 1.2em 1em;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(33,128,141,0.08);
+  font-size: 1.08em;
+  line-height: 1.6;
+  margin: 0 auto 1em auto;
+  max-width: 480px;
+  text-align: left;
+  word-break: break-word;
+}
+@media (max-width: 600px) {
+  .disease-description-card {
+    font-size: 1em;
+    padding: 1em 0.5em;
+    max-width: 98vw;
+  }
+  .disease-prediction-title {
+    font-size: 1.1em;
+  }
+}
+/* Disease Detection Card */
+.disease-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2.5rem 2rem;
+  max-width: 400px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.disease-result {
+  margin-top: 1.5rem;
+  width: 100%;
+  text-align: center;
+}
 :root {
   /* Primitive Color Tokens */
   --color-white: rgba(255, 255, 255, 1);

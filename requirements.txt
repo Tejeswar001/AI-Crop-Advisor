@@ -1,1 +1,8 @@
 flask
+joblib
+numpy
+requests
+Pillow
+torch
+torchvision
+scikit-learn

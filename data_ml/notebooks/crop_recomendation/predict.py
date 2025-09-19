@@ -3,8 +3,8 @@ import pandas as pd
 import sys
 
 # Load trained model and label encoder
-model = joblib.load("crop_recommendation_model.pkl")
-le = joblib.load("label_encoder.pkl")
+model = joblib.load("../../models/crop_recommendation/crop_recommendation_model.pkl")
+le = joblib.load("../../models/crop_recommendation/label_encoder.pkl")
 
 def recommend_crop(N, P, K, temperature, humidity, ph, rainfall):
     features = pd.DataFrame([{
